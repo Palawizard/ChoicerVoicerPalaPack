@@ -15,6 +15,8 @@ Packs are installed to `%APPDATA%\YeahMaybe\ChoicerVoicer\game`.
 
 Run the game at least once before installing, so the game folder exists.
 
+The installer updates itself: on each run it checks the repo for a newer version of `install or update.bat`, and if it finds one it replaces itself and restarts. Keep the same file, it stays current.
+
 ## Manual install
 
 Grab `ChoicerVoicerPalaPack.zip` from the [latest release](https://github.com/Palawizard/ChoicerVoicerPalaPack/releases/latest) and extract its `packs_*` folders into `%APPDATA%\YeahMaybe\ChoicerVoicer\game`.
