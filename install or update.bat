@@ -9,6 +9,22 @@ set "TMP=%TEMP%\ChoicerVoicerPalaPack"
 set "CURL=%SystemRoot%\System32\curl.exe"
 set "TAR=%SystemRoot%\System32\tar.exe"
 set "RC=%SystemRoot%\System32\robocopy.exe"
+set "SELF=%~f0"
+set "RAW=https://raw.githubusercontent.com/%REPO%/main/install%%20or%%20update.bat"
+set "NEW=%TEMP%\ChoicerVoicerPalaPack.new.bat"
+set "UPD=%TEMP%\ChoicerVoicerPalaPack.update.cmd"
+del /q "%UPD%" 2>nul
+
+if /i not "%~1"=="updated" (
+    echo.
+    echo   Checking for installer updates...
+    "%CURL%" -sL --fail -o "%NEW%" "%RAW%"
+    if not errorlevel 1 (
+        fc /b "%NEW%" "%SELF%" >nul 2>&1
+        if errorlevel 1 goto :selfupdate
+    )
+    del /q "%NEW%" 2>nul
+)
 
 echo.
 echo  ============================================
@@ -96,3 +112,14 @@ echo   %GAME%
 if "%MODE%"=="2" echo   Your old packs were backed up to: !BACKUP!
 echo.
 pause
+exit /b 0
+
+:selfupdate
+echo   A newer installer is available. Updating and restarting...
+> "%UPD%" echo @echo off
+>>"%UPD%" echo ping -n 2 127.0.0.1 ^>nul
+>>"%UPD%" echo copy /y "%NEW%" "%SELF%" ^>nul
+>>"%UPD%" echo del /q "%NEW%" ^>nul
+>>"%UPD%" echo start "" "%SELF%" updated
+start "" cmd /c "%UPD%"
+exit
