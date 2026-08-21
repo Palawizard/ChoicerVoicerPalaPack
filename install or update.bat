@@ -6,6 +6,9 @@ set "REPO=Palawizard/ChoicerVoicerPalaPack"
 set "GAME=%APPDATA%\YeahMaybe\ChoicerVoicer\game"
 set "HERE=%~dp0"
 set "TMP=%TEMP%\ChoicerVoicerPalaPack"
+set "CURL=%SystemRoot%\System32\curl.exe"
+set "TAR=%SystemRoot%\System32\tar.exe"
+set "RC=%SystemRoot%\System32\robocopy.exe"
 
 echo.
 echo  ============================================
@@ -45,7 +48,7 @@ mkdir "%TMP%" || (echo   Cannot write to %TEMP%. & pause & exit /b 1)
 
 echo.
 echo   Downloading latest pack (this is large, please wait)...
-curl -L --fail --progress-bar -o "%TMP%\pack.zip" "https://github.com/%REPO%/releases/latest/download/ChoicerVoicerPalaPack.zip"
+"%CURL%" -L --fail --progress-bar -o "%TMP%\pack.zip" "https://github.com/%REPO%/releases/latest/download/ChoicerVoicerPalaPack.zip"
 if errorlevel 1 (
     echo.
     echo   Download failed. Check your internet connection and try again.
@@ -55,7 +58,7 @@ if errorlevel 1 (
 
 echo.
 echo   Extracting...
-tar -xf "%TMP%\pack.zip" -C "%TMP%"
+"%TAR%" -xf "%TMP%\pack.zip" -C "%TMP%"
 if errorlevel 1 (
     echo.
     echo   Extraction failed.
@@ -64,15 +67,14 @@ if errorlevel 1 (
 )
 
 if "%MODE%"=="2" (
-    for /f "tokens=2 delims==" %%i in ('wmic os get localdatetime /value') do set "DT=%%i"
-    set "STAMP=!DT:~0,8!-!DT:~8,6!"
+    for /f %%i in ('powershell -nop -c "Get-Date -f yyyyMMdd-HHmmss"') do set "STAMP=%%i"
     set "BACKUP=%HERE%PalaPack Backup !STAMP!"
     echo.
     echo   Backing up your packs to:
     echo   !BACKUP!
     mkdir "!BACKUP!" || (echo   Cannot create backup folder. & pause & exit /b 1)
     for /d %%d in ("%GAME%\packs_*") do (
-        robocopy "%%~fd" "!BACKUP!\%%~nxd" /e /njh /njs /ndl /nc /ns /nfl >nul
+        "%RC%" "%%~fd" "!BACKUP!\%%~nxd" /e /njh /njs /ndl /nc /ns /nfl >nul
         if !errorlevel! geq 8 (echo   Backup of %%~nxd failed. & pause & exit /b 1)
     )
     echo   Removing your packs...
@@ -82,7 +84,7 @@ if "%MODE%"=="2" (
 echo.
 echo   Installing...
 for /d %%d in ("%TMP%\packs_*") do (
-    robocopy "%%~fd" "%GAME%\%%~nxd" /e /njh /njs /ndl /nc /ns /nfl >nul
+    "%RC%" "%%~fd" "%GAME%\%%~nxd" /e /njh /njs /ndl /nc /ns /nfl >nul
     if !errorlevel! geq 8 (echo   Install of %%~nxd failed. & pause & exit /b 1)
 )
 
